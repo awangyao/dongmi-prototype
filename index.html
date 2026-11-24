@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>懂秘 · 政企政策智能助手 | AI 产品原型</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://lib.baomitu.com/font-awesome/6.5.1/css/all.min.css" onerror="this.onerror=null;this.href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css'">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; }
+  .gradient-hero { background: linear-gradient(135deg, #0c2340 0%, #1e3a5f 40%, #0369a1 100%); }
+  .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); }
+  .chip { display:inline-flex; align-items:center; gap:4px; padding:2px 10px; border-radius:999px; font-size:11px; font-weight:600; }
+  .typing { overflow:hidden; white-space:nowrap; animation:typing 2.2s steps(30) 1s forwards; width:0; }
+  @keyframes typing { to { width:100%; } }
+  .fade-in { animation:fadeIn 0.6s ease-out both; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:none; } }
+  .tab-active { background:#0c2340; color:white; border-color:#0c2340; }
+  .scroll-smooth { scroll-behavior:smooth; }
+  .mock-chat-scroll { max-height:420px; overflow-y:auto; scrollbar-width:thin; }
+  .mock-chat-scroll::-webkit-scrollbar { width:6px; }
+  .mock-chat-scroll::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:3px; }
+  .blob { position:absolute; border-radius:50%; filter:blur(60px); opacity:0.5; }
+  .ring-branded { box-shadow: 0 0 0 1px rgba(14,165,233,0.15), 0 8px 32px -8px rgba(12,35,64,0.2); }
+  .grid-pattern { background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.08) 1px, transparent 0); background-size: 24px 24px; }
+  @media (prefers-reduced-motion: reduce) { .typing, .fade-in { animation:none; } }
+  .model-card { border:1px solid #e2e8f0; background:#fff; transition:border-color .15s, background-color .15s; }
+  .model-card:hover { border-color:#38bdf8; }
+  .model-card.is-active { border:2px solid #8b5cf6; background:#f5f3ff; }
+  #toast-wrap { position:fixed; left:50%; transform:translateX(-50%); bottom:28px; z-index:9999; display:flex; flex-direction:column; gap:8px; align-items:center; pointer-events:none; }
+  .toast { background:#0f172a; color:#fff; font-size:13px; padding:10px 18px; border-radius:10px; box-shadow:0 10px 30px -8px rgba(15,23,42,.4); animation:toastIn .25s ease-out; max-width:90vw; }
+  .toast.ok { background:#065f46; }
+  .toast.warn { background:#92400e; }
+  @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+  .btn-busy { opacity:.6; pointer-events:none; }
+  .skeleton { background:#e2e8f0; border-radius:4px; animation:pulse 1.2s ease-in-out infinite; height:12px; }
+  @keyframes pulse { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+  /* 架构图渐进增强：默认显示零依赖静态版，Mermaid 渲染成功后替换 */
+  #arch-static { display:none; }
+  /* 保留布局尺寸供 Mermaid 测量，但先隐藏源码文本，避免闪烁 */
+  .mermaid { visibility:hidden; min-height:180px; }
+  .mermaid-wrap { display:block; }
+  html.mermaid-ok .mermaid { visibility:visible; }
+  html.mermaid-ok #arch-loading { display:none; }
+  html.mermaid-failed #arch-static { display:block; }
+  html.mermaid-failed #arch-loading { display:none; }
+  html.mermaid-failed .mermaid { display:none; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 scroll-smooth">
+
+<!-- ================= NAV ================= -->
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200">
+  <div class="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm">懂</div>
+      <div>
+        <div class="font-semibold text-slate-900 leading-tight">懂秘 DongMi</div>
+        <div class="text-[10px] text-slate-500 leading-tight">政企政策智能助手 · Product Prototype</div>
+      </div>
+    </div>
+    <div class="hidden md:flex items-center gap-6 text-sm text-slate-600">
+      <a href="#overview" class="hover:text-sky-600">产品总览</a>
+      <a href="#demo" class="hover:text-sky-600">功能演示</a>
+      <a href="#arch" class="hover:text-sky-600">技术架构</a>
+      <a href="#roadmap" class="hover:text-sky-600">产品路线</a>
+      <a href="#why" class="hover:text-sky-600">为什么做</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="chip bg-sky-100 text-sky-700 border border-sky-200"><i class="fa-solid fa-circle text-[6px]"></i>RAG · LLM</span>
+      <span class="chip bg-emerald-100 text-emerald-700 border border-emerald-200">v0.1.0 Prototype</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section class="gradient-hero text-white pt-28 pb-24 relative overflow-hidden">
+  <div class="blob bg-sky-400 w-96 h-96 -top-20 -left-20"></div>
+  <div class="blob bg-blue-600 w-80 h-80 top-40 -right-10"></div>
+  <div class="absolute inset-0 grid-pattern opacity-40"></div>
+
+  <div class="max-w-7xl mx-auto px-6 relative">
+    <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <!-- Left: value prop -->
+      <div class="fade-in">
+        <div class="inline-flex items-center gap-2 glass px-3 py-1.5 rounded-full text-xs mb-6">
+          <i class="fa-solid fa-bolt text-yellow-300"></i>
+          <span>基于 RAG · LLM 构建的政企服务 AI 原生产品</span>
+        </div>
+        <h1 class="text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          让<span class="text-sky-300">政策文件</span><br>
+          像<span class="text-yellow-300">私人员工</span>一样<br>
+          随问随答
+        </h1>
+        <p class="text-lg text-slate-200 leading-relaxed mb-8 max-w-xl">
+          懂秘是一款面向中小企业与政策咨询师的智能助手，将分散在政府网站、PDF 公告、招投标文档中的非结构化政策信息，
+          通过 <b class="text-white">检索增强生成（RAG）</b> 技术，秒级转化为可对话、可追溯的精准问答。
+        </p>
+
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="glass rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-sky-300">1,700+</div>
+            <div class="text-xs text-slate-300 mt-1">本地政策文档</div>
+          </div>
+          <div class="glass rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-sky-300">2.5s</div>
+            <div class="text-xs text-slate-300 mt-1">平均问答延迟</div>
+          </div>
+          <div class="glass rounded-xl p-4 text-center">
+            <div class="text-3xl font-bold text-sky-300">98%</div>
+            <div class="text-xs text-slate-300 mt-1">可追溯引用率</div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <a href="#demo" class="bg-white text-slate-900 px-5 py-3 rounded-xl font-semibold text-sm hover:bg-sky-100 transition flex items-center gap-2">
+            <i class="fa-solid fa-play text-xs"></i> 体验产品原型
+          </a>
+          <a href="#arch" class="glass text-white px-5 py-3 rounded-xl font-semibold text-sm hover:bg-white/15 transition flex items-center gap-2">
+            <i class="fa-solid fa-diagram-project text-xs"></i> 查看技术架构
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: mock chat preview -->
+      <div class="fade-in" style="animation-delay:120ms">
+        <div class="glass rounded-2xl p-2 shadow-2xl ring-1 ring-white/20">
+          <div class="bg-white rounded-xl overflow-hidden">
+            <!-- Browser chrome -->
+            <div class="bg-slate-100 px-3 py-2 flex items-center gap-1.5 border-b">
+              <span class="w-3 h-3 rounded-full bg-red-400"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+              <span class="w-3 h-3 rounded-full bg-green-400"></span>
+              <div class="flex-1 text-center text-[11px] text-slate-400">dongmi.local · 政策问答</div>
+            </div>
+            <!-- Chat area -->
+            <div class="mock-chat-scroll p-4 bg-gradient-to-b from-slate-50 to-white" style="max-height:440px">
+              <!-- User -->
+              <div class="flex gap-3 mb-4 justify-end">
+                <div class="max-w-[80%]">
+                  <div class="bg-sky-600 text-white text-sm rounded-2xl rounded-tr-sm px-4 py-2.5">
+                    2025 年山东省高新技术企业认定有什么新变化？申报截止到什么时候？
+                  </div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-semibold">我</div>
+              </div>
+              <!-- Assistant -->
+              <div class="flex gap-3 mb-4">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold">懂</div>
+                <div class="max-w-[80%]">
+                  <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                    <p class="text-sm text-slate-700 leading-relaxed mb-2">
+                      根据知识库检索到的政策文件，<b>2025 年山东省高企认定</b>主要有三个新变化：
+                    </p>
+                    <ol class="text-sm text-slate-700 space-y-1 list-decimal pl-5 mb-2">
+                      <li>研发费用占比门槛：企业收入 5000 万以下由 <b>5%</b> 调整为 <b>4%</b></li>
+                      <li>增加了<b>绿色低碳</b>领域的优先审查通道</li>
+                      <li>申报截止日期统一为 <b>2025 年 6 月 30 日</b></li>
+                    </ol>
+                    <div class="mt-3 pt-3 border-t border-slate-100">
+                      <div class="text-[11px] text-slate-400 mb-1 flex items-center gap-1">
+                        <i class="fa-solid fa-quote-left text-sky-400"></i> 引用来源
+                      </div>
+                      <div class="space-y-1">
+                        <div class="text-[11px] text-sky-700 bg-sky-50 rounded px-2 py-1 truncate">📄 《山东省高新技术企业认定管理工作指引（2025修订）》</div>
+                        <div class="text-[11px] text-sky-700 bg-sky-50 rounded px-2 py-1 truncate">📄 鲁科发〔2025〕12号 · 关于组织申报的通知</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-[10px] text-slate-400 mt-1 flex items-center gap-2">
+                    <span>✅ 回答基于 4 份政策文档</span>
+                    <span>·</span>
+                    <span>耗时 2.3s</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Follow-up -->
+              <div class="flex gap-3 mb-4 justify-end">
+                <div class="max-w-[80%]">
+                  <div class="bg-sky-600 text-white text-sm rounded-2xl rounded-tr-sm px-4 py-2.5">
+                    那申报需要准备哪些材料？
+                  </div>
+                </div>
+                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-semibold">我</div>
+              </div>
+              <!-- Typing -->
+              <div class="flex gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold">懂</div>
+                <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">
+                  <div class="flex items-center gap-1.5 text-slate-400 text-sm">
+                    <span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay:0s"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay:150ms"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay:300ms"></span>
+                    <span class="ml-1">正在检索 47 份相关文件...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Input -->
+            <div class="border-t p-3 flex gap-2">
+              <input class="flex-1 bg-slate-100 rounded-lg px-3 py-2 text-sm outline-none" placeholder="继续追问，或上传你的企业情况..." readonly>
+              <button class="bg-sky-600 text-white rounded-lg px-4 py-2 text-sm font-medium"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= OVERVIEW: 产品定位与功能 ================= -->
+<section id="overview" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-16">
+      <div class="chip bg-sky-100 text-sky-700 border border-sky-200 mb-4"><i class="fa-solid fa-compass"></i> PRODUCT OVERVIEW</div>
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">一个产品，解决政企信息服务的三个核心痛点</h2>
+      <p class="text-slate-500 max-w-2xl mx-auto">传统政策服务依赖人工搜索、阅读 PDF、整理要点，效率低、成本高、时效差。懂秘用 AI 把这一切变成对话。</p>
+    </div>
+
+    <!-- Three pains -->
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+        <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="font-semibold text-slate-900 mb-2">信息分散难找</div>
+        <div class="text-sm text-slate-600 leading-relaxed">政策文件散布在国务院、部委、省、市、区县五级网站，招投标公告更是日增数千，企业很难一站式获取相关信息。</div>
+      </div>
+      <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+        <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-file-pdf"></i></div>
+        <div class="font-semibold text-slate-900 mb-2">文档冗长难读</div>
+        <div class="text-sm text-slate-600 leading-relaxed">一份典型的高企认定指引 60+ 页，补贴申报指南 40+ 页，传统人工阅读整理至少 3-5 小时/份，人力成本极高。</div>
+      </div>
+      <div class="bg-slate-50 rounded-2xl p-6 border border-slate-100">
+        <div class="w-12 h-12 rounded-xl bg-yellow-100 text-yellow-700 flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-clock"></i></div>
+        <div class="font-semibold text-slate-900 mb-2">时效敏感难追</div>
+        <div class="text-sm text-slate-600 leading-relaxed">申报窗口短则 15 天，长则 2 个月，错过即等一年。企业需要实时监控、主动提醒、快速响应。</div>
+      </div>
+    </div>
+
+    <!-- Solution: 核心功能 -->
+    <h3 class="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-3">
+      <span class="w-1 h-7 bg-sky-500 rounded-full"></span>
+      懂秘的核心能力矩阵
+    </h3>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-sky-50 to-white border-sky-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-comments text-2xl text-sky-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">政策问答</div>
+        <div class="text-xs text-slate-500 mb-2">RAG Chatbot</div>
+        <div class="text-xs text-slate-600 leading-relaxed">基于本地知识库的多轮对话，回答附原文引用可追溯。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-violet-50 to-white border-violet-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-file-pen text-2xl text-violet-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">申报书生成</div>
+        <div class="text-xs text-slate-500 mb-2">Application Writer</div>
+        <div class="text-xs text-slate-600 leading-relaxed">填写企业信息，AI 自动匹配政策、生成申报文本初稿。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-emerald-50 to-white border-emerald-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-database text-2xl text-emerald-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">知识库管理</div>
+        <div class="text-xs text-slate-500 mb-2">Knowledge Base</div>
+        <div class="text-xs text-slate-600 leading-relaxed">支持 PDF/DOCX/PPTX/网页/企业 JSON 多源入库，向量化建索引。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-amber-50 to-white border-amber-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-webhook text-2xl text-amber-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">爬虫 & 监控</div>
+        <div class="text-xs text-slate-500 mb-2">Policy Crawler</div>
+        <div class="text-xs text-slate-600 leading-relaxed">定时监控指定政策网站，新公告自动入库并推送提醒。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-rose-50 to-white border-rose-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-building text-2xl text-rose-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">企业查询</div>
+        <div class="text-xs text-slate-500 mb-2">Enterprise Lookup</div>
+        <div class="text-xs text-slate-600 leading-relaxed">工商、资质、招投标关联数据一搜即达，支撑精准匹配。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-indigo-50 to-white border-indigo-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-calculator text-2xl text-indigo-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">补贴测算</div>
+        <div class="text-xs text-slate-500 mb-2">Subsidy Calculator</div>
+        <div class="text-xs text-slate-600 leading-relaxed">根据政策条款与企业参数，自动估算可申报补贴金额。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-cyan-50 to-white border-cyan-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-bell text-2xl text-cyan-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">主动提醒</div>
+        <div class="text-xs text-slate-500 mb-2">Smart Notification</div>
+        <div class="text-xs text-slate-600 leading-relaxed">基于企业画像的政策申报倒计时、新政策匹配推送。</div>
+      </div>
+      <div class="rounded-2xl p-5 border bg-gradient-to-br from-fuchsia-50 to-white border-fuchsia-100 hover:shadow-lg transition">
+        <i class="fa-solid fa-user-gear text-2xl text-fuchsia-600 mb-3"></i>
+        <div class="font-semibold text-slate-900 mb-1">模型自选</div>
+        <div class="text-xs text-slate-500 mb-2">Model Freedom</div>
+        <div class="text-xs text-slate-600 leading-relaxed">支持 Ollama 本地模型 + 通义/DeepSeek/Moonshot/Zhipu 云端 API。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEMO: 功能交互演示 ================= -->
+<section id="demo" class="py-24 bg-slate-100">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <div class="chip bg-violet-100 text-violet-700 border border-violet-200 mb-4"><i class="fa-solid fa-wand-magic-sparkles"></i> INTERACTIVE DEMO</div>
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">三大核心场景的交互演示</h2>
+      <p class="text-slate-500">点击标签切换不同功能界面，每一个都模拟了真实的产品体验。</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="flex border-b border-slate-200 bg-slate-50">
+        <button data-tab="qa" class="tab-btn tab-active px-5 py-3 text-sm font-medium border-b-2 border-transparent transition">
+          <i class="fa-solid fa-comments mr-2"></i>政策问答（主场景）
+        </button>
+        <button data-tab="kb" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900 transition">
+          <i class="fa-solid fa-database mr-2"></i>知识库管理
+        </button>
+        <button data-tab="app" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900 transition">
+          <i class="fa-solid fa-file-pen mr-2"></i>申报书生成
+        </button>
+        <button data-tab="model" class="tab-btn px-5 py-3 text-sm font-medium border-b-2 border-transparent text-slate-600 hover:text-slate-900 transition">
+          <i class="fa-solid fa-sliders mr-2"></i>模型配置
+        </button>
+      </div>
+
+      <!-- QA TAB -->
+      <div id="tab-qa" class="tab-content p-6">
+        <div class="grid lg:grid-cols-4 gap-6">
+          <!-- Sidebar -->
+          <div class="lg:col-span-1">
+            <div class="bg-slate-50 rounded-xl p-4 border border-slate-100">
+              <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">快捷提问</div>
+              <div class="space-y-2">
+                <button data-question="高企认定申报条件" class="quick-q w-full text-left text-xs bg-white border border-slate-200 hover:border-sky-400 hover:text-sky-700 rounded-lg px-3 py-2 transition truncate">📋 高企认定申报条件</button>
+                <button data-question="小微企业税费优惠" class="quick-q w-full text-left text-xs bg-white border border-slate-200 hover:border-sky-400 hover:text-sky-700 rounded-lg px-3 py-2 transition truncate">💰 小微企业税费优惠</button>
+                <button data-question="工程总承包招标要求" class="quick-q w-full text-left text-xs bg-white border border-slate-200 hover:border-sky-400 hover:text-sky-700 rounded-lg px-3 py-2 transition truncate">🏗️ 工程总承包招标要求</button>
+                <button data-question="绿色低碳补贴申报" class="quick-q w-full text-left text-xs bg-white border border-slate-200 hover:border-sky-400 hover:text-sky-700 rounded-lg px-3 py-2 transition truncate">🌱 绿色低碳补贴申报</button>
+                <button data-question="专精特新企业认定" class="quick-q w-full text-left text-xs bg-white border border-slate-200 hover:border-sky-400 hover:text-sky-700 rounded-lg px-3 py-2 transition truncate">🎯 专精特新企业认定</button>
+              </div>
+              <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 mt-6">本次对话的引用库</div>
+              <div class="space-y-1.5 text-[11px]">
+                <div class="flex items-center gap-2 bg-emerald-50 text-emerald-700 rounded px-2 py-1.5">
+                  <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                  <span class="truncate">山东省高企认定指引 2025</span>
+                </div>
+                <div class="flex items-center gap-2 bg-emerald-50 text-emerald-700 rounded px-2 py-1.5">
+                  <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                  <span class="truncate">鲁科发〔2025〕12号</span>
+                </div>
+                <div class="flex items-center gap-2 bg-slate-100 text-slate-600 rounded px-2 py-1.5">
+                  <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
+                  <span class="truncate">工程招标公告 68 份</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Main chat -->
+          <div class="lg:col-span-3">
+            <div id="qa-chat" class="mock-chat-scroll rounded-xl border border-slate-200 p-5 bg-gradient-to-b from-slate-50/60 to-white" style="max-height:520px">
+              <div class="flex gap-3 mb-5 justify-end">
+                <div class="max-w-[75%] bg-sky-600 text-white text-sm rounded-2xl rounded-tr-sm px-4 py-2.5">
+                  我们公司是做新能源设备的，想申报专精特新，条件够吗？需要准备什么？
+                </div>
+                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-semibold">我</div>
+              </div>
+              <div class="flex gap-3 mb-5">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold shrink-0">懂</div>
+                <div class="max-w-[85%]">
+                  <div class="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-4 shadow-sm">
+                    <p class="text-sm text-slate-700 leading-relaxed mb-3">
+                      「专精特新」中小企业认定需同时满足 <b>专、精、特、新</b> 四项标准。结合你的新能源设备领域，以下是关键条件清单：
+                    </p>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                      <div class="bg-sky-50 border border-sky-100 rounded-lg p-3">
+                        <div class="text-[11px] font-semibold text-sky-700 mb-1"><i class="fa-solid fa-tag mr-1"></i>专业化</div>
+                        <div class="text-[12px] text-slate-700">主营业务占收 ≥ 70%</div>
+                      </div>
+                      <div class="bg-violet-50 border border-violet-100 rounded-lg p-3">
+                        <div class="text-[11px] font-semibold text-violet-700 mb-1"><i class="fa-solid fa-gem mr-1"></i>精细化</div>
+                        <div class="text-[12px] text-slate-700">两年研发投入占比 ≥ 3%</div>
+                      </div>
+                      <div class="bg-emerald-50 border border-emerald-100 rounded-lg p-3">
+                        <div class="text-[11px] font-semibold text-emerald-700 mb-1"><i class="fa-solid fa-shapes mr-1"></i>特色化</div>
+                        <div class="text-[12px] text-slate-700">拥有核心技术或独家工艺</div>
+                      </div>
+                      <div class="bg-amber-50 border border-amber-100 rounded-lg p-3">
+                        <div class="text-[11px] font-semibold text-amber-700 mb-1"><i class="fa-solid fa-sparkles mr-1"></i>新颖化</div>
+                        <div class="text-[12px] text-slate-700">发明专利 ≥ 2 项或软件著作权 ≥ 5 项</div>
+                      </div>
+                    </div>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-100 text-[12px] text-slate-700">
+                      <b class="text-slate-900">📎 申报材料清单（9 项）：</b>
+                      <ol class="mt-1 space-y-0.5 pl-5 list-decimal text-slate-600">
+                        <li>专精特新中小企业认定申请表</li>
+                        <li>营业执照副本复印件</li>
+                        <li>近两年审计报告 + 纳税申报表</li>
+                        <li>研发费用归集表 + 佐证材料</li>
+                        <li>知识产权证书（发明专利/软著）</li>
+                        <li>核心产品市场占有率说明</li>
+                        <li>质量管理体系认证证书</li>
+                        <li>产学研合作证明</li>
+                        <li>其他荣誉与资质证书</li>
+                      </ol>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <div class="flex gap-2">
+                        <span class="chip bg-sky-50 text-sky-700 border border-sky-200 text-[10px]">✅ 引用 6 份政策</span>
+                        <span class="chip bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px]">📎 可导出清单</span>
+                      </div>
+                      <div class="text-[10px] text-slate-400">耗时 2.7s · DeepSeek-r1</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Composer -->
+            <div class="mt-3 bg-white border border-slate-200 rounded-xl p-3 flex gap-2 items-end">
+              <div class="flex gap-1">
+                <button class="w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500"><i class="fa-solid fa-paperclip"></i></button>
+                <button class="w-9 h-9 rounded-lg hover:bg-slate-100 text-slate-500"><i class="fa-solid fa-microphone"></i></button>
+              </div>
+              <input id="qa-input" class="flex-1 text-sm outline-none py-2" placeholder="继续追问，或点击上传你的企业信息...">
+              <button id="qa-new" class="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs px-3 py-2 rounded-lg">新对话</button>
+              <button id="qa-send" class="bg-sky-600 text-white text-sm px-4 py-2 rounded-lg font-medium"><i class="fa-solid fa-paper-plane mr-1"></i>发送</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KB TAB -->
+      <div id="tab-kb" class="tab-content hidden p-6">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <div class="font-semibold text-slate-900">知识库 · 已入库 1,726 份文档</div>
+            <div class="text-xs text-slate-500">涵盖 2023-2025 山东、全国政策公告，总字符数 3,850 万</div>
+          </div>
+          <div class="flex gap-2">
+            <button data-action="upload" class="kb-action bg-sky-600 text-white text-sm px-4 py-2 rounded-lg"><i class="fa-solid fa-cloud-arrow-up mr-1"></i>上传文件</button>
+            <button data-action="crawl" class="kb-action bg-white border border-slate-200 text-slate-700 text-sm px-4 py-2 rounded-lg"><i class="fa-solid fa-link mr-1"></i>抓取网页</button>
+            <button data-action="enterprise" class="kb-action bg-white border border-slate-200 text-slate-700 text-sm px-4 py-2 rounded-lg"><i class="fa-solid fa-sitemap mr-1"></i>企业数据</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-4 mb-6">
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">PDF 政策文件</div>
+            <div class="text-2xl font-bold text-slate-900">1,438</div>
+            <div class="text-[10px] text-emerald-600 mt-1">↑ 近 7 天新增 14</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">网页抓取</div>
+            <div class="text-2xl font-bold text-slate-900">247</div>
+            <div class="text-[10px] text-emerald-600 mt-1">由爬虫定时更新</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">企业工商数据</div>
+            <div class="text-2xl font-bold text-slate-900">41,208</div>
+            <div class="text-[10px] text-slate-500 mt-1">JSON 批量导入</div>
+          </div>
+          <div class="rounded-xl border border-slate-200 p-4">
+            <div class="text-[11px] text-slate-500 uppercase tracking-wider mb-1">向量索引状态</div>
+            <div class="text-2xl font-bold text-emerald-600">● 正常</div>
+            <div class="text-[10px] text-slate-500 mt-1">ES · 分片 6 · 副本 1</div>
+          </div>
+        </div>
+
+        <table class="w-full text-sm">
+          <thead class="text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-200">
+            <tr>
+              <th class="text-left py-3 font-medium">文档名称</th>
+              <th class="text-left py-3 font-medium">类型</th>
+              <th class="text-left py-3 font-medium">来源</th>
+              <th class="text-left py-3 font-medium">入库时间</th>
+              <th class="text-left py-3 font-medium">分块数</th>
+              <th class="text-left py-3 font-medium">状态</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-700">
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-3">🏛️ 山东省高企认定管理工作指引（2025修订）.pdf</td>
+              <td><span class="chip bg-red-50 text-red-700 border border-red-200">PDF</span></td>
+              <td class="text-slate-500">省科技厅</td>
+              <td class="text-slate-500">2025-03-12</td>
+              <td>184</td>
+              <td><span class="chip bg-emerald-50 text-emerald-700 border border-emerald-200">✓ 已向量化</span></td>
+            </tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-3">💰 鲁财税〔2025〕8号 · 小微企业税费优惠延续政策.pdf</td>
+              <td><span class="chip bg-red-50 text-red-700 border border-red-200">PDF</span></td>
+              <td class="text-slate-500">省财政厅</td>
+              <td class="text-slate-500">2025-03-08</td>
+              <td>96</td>
+              <td><span class="chip bg-emerald-50 text-emerald-700 border border-emerald-200">✓ 已向量化</span></td>
+            </tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-3">🌱 绿色低碳发展专项资金申报指南</td>
+              <td><span class="chip bg-blue-50 text-blue-700 border border-blue-200">网页</span></td>
+              <td class="text-slate-500">省发改委（爬虫）</td>
+              <td class="text-slate-500">2025-03-06</td>
+              <td>42</td>
+              <td><span class="chip bg-emerald-50 text-emerald-700 border border-emerald-200">✓ 已向量化</span></td>
+            </tr>
+            <tr class="border-b border-slate-100 hover:bg-slate-50">
+              <td class="py-3">🎯 专精特新中小企业认定申报材料清单.docx</td>
+              <td><span class="chip bg-blue-50 text-blue-700 border border-blue-200">DOCX</span></td>
+              <td class="text-slate-500">省工信厅</td>
+              <td class="text-slate-500">2025-03-02</td>
+              <td>57</td>
+              <td><span class="chip bg-emerald-50 text-emerald-700 border border-emerald-200">✓ 已向量化</span></td>
+            </tr>
+            <tr class="hover:bg-slate-50">
+              <td class="py-3">🏗️ 招标公告 1702 · 滨州奇沃生态循环产业园全过程造价咨询.pdf</td>
+              <td><span class="chip bg-red-50 text-red-700 border border-red-200">PDF</span></td>
+              <td class="text-slate-500">公共资源交易中心</td>
+              <td class="text-slate-500">2025-02-28</td>
+              <td>38</td>
+              <td><span class="chip bg-amber-50 text-amber-700 border border-amber-200">⏳ 处理中</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- APPLICATION TAB -->
+      <div id="tab-app" class="tab-content hidden p-6">
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- Left: form -->
+          <div>
+            <div class="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-building text-sky-600"></i> 企业基本信息
+            </div>
+            <div class="space-y-4">
+              <div>
+                <label class="text-xs text-slate-500 mb-1 block">企业名称</label>
+                <input class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value="山东蓝海新能源科技有限公司">
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-slate-500 mb-1 block">统一社会信用代码</label>
+                  <input class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value="91370100MA3XXXXXXX">
+                </div>
+                <div>
+                  <label class="text-xs text-slate-500 mb-1 block">成立时间</label>
+                  <input class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value="2019-06">
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-slate-500 mb-1 block">所属行业</label>
+                  <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white">
+                    <option selected>新能源设备制造</option>
+                    <option>软件和信息技术服务业</option>
+                    <option>生物医药</option>
+                    <option>新材料</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs text-slate-500 mb-1 block">员工规模</label>
+                  <select class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white">
+                    <option selected>50-200 人</option>
+                    <option>20-50 人</option>
+                    <option>200-500 人</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-slate-500 mb-1 block">2024 年营业收入</label>
+                  <input class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value="8,600 万元">
+                </div>
+                <div>
+                  <label class="text-xs text-slate-500 mb-1 block">研发投入占比</label>
+                  <input class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm" value="4.8%">
+                </div>
+              </div>
+              <div>
+                <label class="text-xs text-slate-500 mb-1 block">核心技术 / 产品</label>
+                <textarea rows="2" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm">高效储能电池管理系统、光储一体化控制器、虚拟电厂调度平台</textarea>
+              </div>
+
+              <div class="pt-2">
+                <label class="text-xs text-slate-500 mb-2 block">选择要申报的政策</label>
+                <div class="space-y-2">
+                  <label class="flex items-center gap-3 border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-sky-400 transition">
+                    <input type="checkbox" checked class="accent-sky-600">
+                    <div class="flex-1">
+                      <div class="text-sm font-medium text-slate-900">🏆 专精特新中小企业认定</div>
+                      <div class="text-[11px] text-slate-500">补贴 50-100 万 · 截止 2025-06-30</div>
+                    </div>
+                    <span class="chip bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px]">匹配度 92%</span>
+                  </label>
+                  <label class="flex items-center gap-3 border border-slate-200 rounded-lg p-3 cursor-pointer hover:border-sky-400 transition">
+                    <input type="checkbox" class="accent-sky-600">
+                    <div class="flex-1">
+                      <div class="text-sm font-medium text-slate-900">🌱 绿色低碳发展专项补贴</div>
+                      <div class="text-[11px] text-slate-500">按投入 15% 补贴 · 截止 2025-05-15</div>
+                    </div>
+                    <span class="chip bg-amber-100 text-amber-700 border border-amber-200 text-[10px]">匹配度 78%</span>
+                  </label>
+                </div>
+              </div>
+
+              <button id="app-generate" class="w-full bg-gradient-to-r from-sky-600 to-blue-700 text-white font-semibold py-3 rounded-xl hover:shadow-lg transition">
+                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>一键生成申报书
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: preview -->
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="font-semibold text-slate-900 text-sm">📄 专精特新申报书 · 自动生成预览</div>
+              <div class="flex gap-2 text-xs">
+                <button id="app-copy" class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-copy mr-1"></i>复制</button>
+                <button id="app-export" class="px-3 py-1.5 bg-white border border-slate-200 rounded-lg hover:bg-slate-100"><i class="fa-solid fa-download mr-1"></i>导出 Word</button>
+              </div>
+            </div>
+            <div class="bg-white rounded-lg border border-slate-200 p-5 text-[13px] leading-relaxed text-slate-700" id="app-doc" style="max-height:480px; overflow-y:auto">
+              <div class="text-center mb-4">
+                <div class="font-bold text-slate-900 text-base">专精特新中小企业认定申报材料</div>
+                <div class="text-[11px] text-slate-500 mt-1">山东蓝海新能源科技有限公司</div>
+              </div>
+
+              <div class="space-y-4">
+                <div>
+                  <div class="font-semibold text-slate-900 mb-1">一、企业基本情况</div>
+                  <p>山东蓝海新能源科技有限公司（统一社会信用代码：91370100MA3XXXXXXX）成立于 2019 年 6 月，位于济南市高新区，是一家专注于高效储能电池管理系统、光储一体化控制器及虚拟电厂调度平台研发与生产的高新技术企业。公司现有员工 128 人，其中研发人员占比 42%。2024 年实现营业收入 8,600 万元，近三年年均增长率 35%。</p>
+                </div>
+
+                <div>
+                  <div class="font-semibold text-slate-900 mb-1">二、专业化程度（专）</div>
+                  <p>公司主营业务为新能源储能设备及控制系统的研发、生产和销售，2022-2024 年主营业务收入占全部营业收入比重分别为 91.2%、93.5% 和 94.1%，符合专精特新认定"主营业务收入占比不低于 70%"的要求。核心产品高效储能电池管理系统已实现国内市场占有率约 8%，位列山东省内同行业前三。</p>
+                </div>
+
+                <div>
+                  <div class="font-semibold text-slate-900 mb-1">三、精细化管理（精）</div>
+                  <p>公司已通过 ISO 9001 质量管理体系认证、ISO 14001 环境管理体系认证和 ISO 45001 职业健康安全管理体系认证。近三年研发投入分别为 320 万元、390 万元和 413 万元，占当年营业收入比重分别为 4.2%、4.5% 和 4.8%，均高于 3% 的认定门槛。</p>
+                </div>
+
+                <div>
+                  <div class="font-semibold text-slate-900 mb-1">四、特色化表现（特）</div>
+                  <p>公司拥有与主要竞争对手显著差异化的核心技术——基于 AI 的电池热管理算法，该技术可在极端温度环境下将电池系统循环寿命延长 35%，已获得发明专利授权（ZL202210XXXXXX.X）。产品通过欧盟 CE 认证、北美 UL 认证，具备较强的国际市场竞争力。</p>
+                </div>
+
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-3 text-[12px]">
+                  <b class="text-amber-800">AI 提示：</b>当前材料中「新颖化」章节的知识产权佐证数量略低于要求（需发明专利 ≥ 2 项或软著 ≥ 5 项）。系统检测到你有 1 项发明专利和 3 项软著——<span class="text-amber-700 underline cursor-pointer">点击补充其他可计入的知识产权</span>。
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODEL TAB -->
+      <div id="tab-model" class="tab-content hidden p-6">
+        <div class="grid lg:grid-cols-3 gap-6">
+          <!-- LLM -->
+          <div class="lg:col-span-2">
+            <div class="font-semibold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-brain text-violet-600"></i>大语言模型（LLM）</div>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div class="model-card is-active rounded-xl p-4 relative cursor-pointer" data-name="DeepSeek · deepseek-reasoner">
+                <div class="model-badge absolute -top-2 -right-2 bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">当前使用</div>
+                <div class="font-semibold text-slate-900 mb-1">DeepSeek · deepseek-reasoner</div>
+                <div class="text-[11px] text-slate-600 mb-3">671B 参数 · 推理模型 · 强中文理解</div>
+                <div class="text-[10px] text-slate-500">API · 延迟 ~1.2s/token · 成本 ¥2/M tokens</div>
+              </div>
+              <div class="model-card rounded-xl p-4 relative cursor-pointer" data-name="通义千问 · qwen3.5-plus">
+                <div class="model-badge hidden absolute -top-2 -right-2 bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">当前使用</div>
+                <div class="font-semibold text-slate-900 mb-1">通义千问 · qwen3.5-plus</div>
+                <div class="text-[11px] text-slate-600 mb-3">阿里云 · 通用对话模型</div>
+                <div class="text-[10px] text-slate-500">API · 延迟 ~0.8s/token · 成本 ¥0.8/M tokens</div>
+              </div>
+              <div class="model-card rounded-xl p-4 relative cursor-pointer" data-name="Ollama · qwen3:8b">
+                <div class="model-badge hidden absolute -top-2 -right-2 bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">当前使用</div>
+                <div class="font-semibold text-slate-900 mb-1">Ollama · qwen3:8b</div>
+                <div class="text-[11px] text-slate-600 mb-3">本地部署 · 离线可用</div>
+                <div class="text-[10px] text-slate-500">本地 · 延迟依赖 GPU · 零成本</div>
+              </div>
+              <div class="model-card rounded-xl p-4 relative cursor-pointer" data-name="Zhipu · glm-4-plus">
+                <div class="model-badge hidden absolute -top-2 -right-2 bg-violet-600 text-white text-[10px] px-2 py-0.5 rounded-full">当前使用</div>
+                <div class="font-semibold text-slate-900 mb-1">Zhipu · glm-4-plus</div>
+                <div class="text-[11px] text-slate-600 mb-3">智谱 AI · 长上下文支持</div>
+                <div class="text-[10px] text-slate-500">API · 128K 上下文 · 成本 ¥5/M tokens</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Params -->
+          <div>
+            <div class="font-semibold text-slate-900 mb-4 flex items-center gap-2"><i class="fa-solid fa-sliders text-sky-600"></i>检索与生成参数</div>
+            <div class="bg-slate-50 rounded-xl p-5 space-y-5 border border-slate-100">
+              <div>
+                <div class="flex justify-between text-xs text-slate-600 mb-2"><span>检索 Top K</span><b id="val-topk" class="text-slate-900">8</b></div>
+                <input type="range" min="1" max="20" value="8" data-out="val-topk" class="param-range w-full accent-sky-600">
+              </div>
+              <div>
+                <div class="flex justify-between text-xs text-slate-600 mb-2"><span>Temperature</span><b id="val-temp" class="text-slate-900">0.1</b></div>
+                <input type="range" min="0" max="1" step="0.05" value="0.1" data-out="val-temp" data-decimals="2" class="param-range w-full accent-sky-600">
+              </div>
+              <div>
+                <div class="flex justify-between text-xs text-slate-600 mb-2"><span>Reranker Top N</span><b id="val-rerank" class="text-slate-900">2</b></div>
+                <input type="range" min="1" max="5" value="2" data-out="val-rerank" class="param-range w-full accent-sky-600">
+              </div>
+              <div>
+                <div class="flex justify-between text-xs text-slate-600 mb-2"><span>响应模式</span></div>
+                <select class="w-full text-xs border border-slate-200 rounded-lg px-2 py-1.5 bg-white">
+                  <option selected>simple_summarize（精准回答）</option>
+                  <option>compact（简洁）</option>
+                  <option>refine（逐段优化）</option>
+                  <option>tree_summarize（树状摘要）</option>
+                </select>
+              </div>
+              <div>
+                <div class="flex justify-between text-xs text-slate-600 mb-2"><span>Reranker 模型</span></div>
+                <div class="text-[11px] text-slate-500">已启用 · BAAI/bge-reranker-base · Top 2 重排序</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 grid sm:grid-cols-2 gap-4">
+          <div class="bg-gradient-to-r from-emerald-50 to-white border border-emerald-100 rounded-xl p-4">
+            <div class="text-[11px] font-semibold text-emerald-700 mb-2">当前嵌入模型</div>
+            <div class="font-semibold text-slate-900 text-sm">BAAI/bge-large-zh-v1.5</div>
+            <div class="text-[11px] text-slate-500 mt-1">中文向量嵌入 · 1024 维 · 由智源人工智能研究院开源</div>
+          </div>
+          <div class="bg-gradient-to-r from-amber-50 to-white border border-amber-100 rounded-xl p-4">
+            <div class="text-[11px] font-semibold text-amber-700 mb-2">向量数据库</div>
+            <div class="font-semibold text-slate-900 text-sm">Elasticsearch 8.x</div>
+            <div class="text-[11px] text-slate-500 mt-1">6 分片 · 1 副本 · 混合检索（BM25 + 向量相似度）</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARCHITECTURE ================= -->
+<section id="arch" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <div class="chip bg-blue-100 text-blue-700 border border-blue-200 mb-4"><i class="fa-solid fa-diagram-project"></i> TECHNICAL ARCHITECTURE</div>
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">RAG × 政企知识库的技术实现</h2>
+      <p class="text-slate-500 max-w-2xl mx-auto">从原始 PDF → 向量化索引 → 混合检索 + 重排序 → LLM 生成带引用的回答，完整链路在本地可部署。</p>
+    </div>
+
+    <!-- Architecture mermaid -->
+    <div class="bg-slate-50 rounded-2xl p-6 border border-slate-200 mb-10">
+
+      <!-- 零依赖静态兜底：CDN 不可达时仍能完整表达架构 -->
+      <div id="arch-static">
+        <div class="grid md:grid-cols-4 gap-3">
+          <div class="rounded-xl bg-amber-50 border border-amber-200 p-4">
+            <div class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider mb-2">接入层</div>
+            <div class="text-sm font-semibold text-slate-900 mb-2">数据接入</div>
+            <ul class="text-[11px] text-slate-600 space-y-1">
+              <li>PDF / DOCX / PPTX</li>
+              <li>政府网页 Crawler</li>
+              <li>企业 JSON 批量</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-blue-50 border border-blue-200 p-4">
+            <div class="text-[11px] font-semibold text-blue-700 uppercase tracking-wider mb-2">LlamaIndex</div>
+            <div class="text-sm font-semibold text-slate-900 mb-2">处理与索引</div>
+            <ul class="text-[11px] text-slate-600 space-y-1">
+              <li>中文分块 + 标题增强</li>
+              <li>bge-large-zh 向量化</li>
+              <li>ES / Chroma 存储</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-4">
+            <div class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider mb-2">RAG</div>
+            <div class="text-sm font-semibold text-slate-900 mb-2">混合检索</div>
+            <ul class="text-[11px] text-slate-600 space-y-1">
+              <li>BM25 + 向量相似度</li>
+              <li>Top K = 8 召回</li>
+              <li>bge-reranker 重排序</li>
+            </ul>
+          </div>
+          <div class="rounded-xl bg-fuchsia-50 border border-fuchsia-200 p-4">
+            <div class="text-[11px] font-semibold text-fuchsia-700 uppercase tracking-wider mb-2">LLM</div>
+            <div class="text-sm font-semibold text-slate-900 mb-2">生成与溯源</div>
+            <ul class="text-[11px] text-slate-600 space-y-1">
+              <li>Ollama / DeepSeek 等</li>
+              <li>回答 + 引用原文</li>
+              <li>可追溯、不编造</li>
+            </ul>
+          </div>
+        </div>
+        <div class="mt-3 hidden md:flex items-center justify-center gap-2 text-[11px] text-slate-400">
+          <span>原始文档</span>
+          <i class="fa-solid fa-arrow-right"></i>
+          <span>分块向量化</span>
+          <i class="fa-solid fa-arrow-right"></i>
+          <span>混合检索</span>
+          <i class="fa-solid fa-arrow-right"></i>
+          <span>带引用回答</span>
+          <span class="ml-2 text-slate-300">· 简化视图，流程图加载中</span>
+        </div>
+      </div>
+
+      <!-- Mermaid 增强视图 -->
+      <div class="mermaid-wrap">
+      <div id="arch-loading" class="text-center text-xs text-slate-400 py-16">架构图加载中…</div>
+      <div class="mermaid text-center">
+flowchart LR
+    subgraph IN["📥 数据接入层"]
+        direction LR
+        A1[PDF / DOCX / PPTX]
+        A2[政府网页 Crawler]
+        A3[企业 JSON 批量]
+    end
+
+    subgraph ETL["🔧 数据处理与索引层 LlamaIndex"]
+        direction TB
+        B1[中文文本分块<br>SpacyTextSplitter<br>+ 标题增强]
+        B2[向量化 Embedding<br>bge-large-zh-v1.5<br>1024 维]
+        B3[存储与索引<br>ES / Chroma / LanceDB]
+    end
+
+    subgraph RAG["⚡ RAG 检索层"]
+        direction TB
+        C1[用户 Query]
+        C2[混合检索<br>BM25 + 向量相似度<br>Top K = 8]
+        C3[重排序 Reranker<br>bge-reranker-base<br>Top N = 2]
+    end
+
+    subgraph GEN["🤖 生成与溯源层"]
+        direction TB
+        D1[LLM 推理<br>Ollama / API<br>DeepSeek / 通义 / Zhipu]
+        D2[回答 + 引用溯源]
+    end
+
+    A1 --> B1
+    A2 --> B1
+    A3 --> B1
+    B1 --> B2 --> B3
+    C1 --> C2 --> C3 --> D1 --> D2
+    B3 -- "检索向量" --> C2
+
+    style IN fill:#fef3c7,stroke:#d97706
+    style ETL fill:#dbeafe,stroke:#2563eb
+    style RAG fill:#dcfce7,stroke:#16a34a
+    style GEN fill:#fae8ff,stroke:#c026d3
+      </div>
+      </div>
+    </div>
+
+    <!-- Layers explanation -->
+    <div class="grid md:grid-cols-4 gap-4">
+      <div class="rounded-xl p-5 border border-slate-200 bg-white">
+        <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center mb-3"><i class="fa-solid fa-inbox"></i></div>
+        <div class="font-semibold text-slate-900 text-sm mb-1">接入层</div>
+        <p class="text-[12px] text-slate-600 leading-relaxed">多模态文件上传、定时爬虫、企业批量 JSON 导入——统一转为纯文本后进入处理管道。</p>
+      </div>
+      <div class="rounded-xl p-5 border border-slate-200 bg-white">
+        <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center mb-3"><i class="fa-solid fa-cubes"></i></div>
+        <div class="font-semibold text-slate-900 text-sm mb-1">索引层</div>
+        <p class="text-[12px] text-slate-600 leading-relaxed">针对中文优化的 Spacy 分块器 + 标题增强，使用智源 bge 系列嵌入模型生成向量索引。</p>
+      </div>
+      <div class="rounded-xl p-5 border border-slate-200 bg-white">
+        <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+        <div class="font-semibold text-slate-900 text-sm mb-1">检索层</div>
+        <p class="text-[12px] text-slate-600 leading-relaxed">BM25 关键词 + 向量相似度的混合召回，再经 bge-reranker 重排序提纯 Top N 上下文。</p>
+      </div>
+      <div class="rounded-xl p-5 border border-slate-200 bg-white">
+        <div class="w-9 h-9 rounded-lg bg-fuchsia-100 text-fuchsia-700 flex items-center justify-center mb-3"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="font-semibold text-slate-900 text-sm mb-1">生成层</div>
+        <p class="text-[12px] text-slate-600 leading-relaxed">支持 Ollama 本地模型离线部署，也兼容通义/DeepSeek/Moonshot/Zhipu 等主流 API 服务。</p>
+      </div>
+    </div>
+
+    <!-- Tech Stack table -->
+    <div class="mt-10 rounded-2xl border border-slate-200 overflow-hidden">
+      <div class="bg-slate-50 px-6 py-3 border-b border-slate-200 font-semibold text-slate-900">技术栈总览（可直接写在简历 / 面试回答中）</div>
+      <table class="w-full text-sm">
+        <tbody class="text-slate-700">
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium w-40 bg-slate-50/50">前端</td>
+            <td class="px-6 py-3"><span class="chip bg-sky-100 text-sky-700 border border-sky-200">Streamlit</span> <span class="chip bg-slate-100 text-slate-700 border border-slate-200">HTML / CSS</span> <span class="chip bg-slate-100 text-slate-700 border border-slate-200">（规划：Electron + React + Vite）</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium bg-slate-50/50">后端</td>
+            <td class="px-6 py-3"><span class="chip bg-emerald-100 text-emerald-700 border border-emerald-200">FastAPI</span> <span class="chip bg-emerald-100 text-emerald-700 border border-emerald-200">Uvicorn</span> <span class="chip bg-slate-100 text-slate-700 border border-slate-200">SQLAlchemy + Alembic</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium bg-slate-50/50">RAG 框架</td>
+            <td class="px-6 py-3"><span class="chip bg-violet-100 text-violet-700 border border-violet-200">LlamaIndex 1.x</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium bg-slate-50/50">嵌入 / 重排序</td>
+            <td class="px-6 py-3"><span class="chip bg-amber-100 text-amber-700 border border-amber-200">BAAI/bge-large-zh-v1.5</span> <span class="chip bg-amber-100 text-amber-700 border border-amber-200">BAAI/bge-reranker-base</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium bg-slate-50/50">LLM 接入</td>
+            <td class="px-6 py-3"><span class="chip bg-pink-100 text-pink-700 border border-pink-200">Ollama（本地）</span> <span class="chip bg-slate-100 text-slate-700 border border-slate-200">通义千问 / DeepSeek / Moonshot / Zhipu / OpenAI</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium bg-slate-50/50">向量存储</td>
+            <td class="px-6 py-3"><span class="chip bg-red-100 text-red-700 border border-red-200">Elasticsearch</span> <span class="chip bg-slate-100 text-slate-700 border border-slate-200">Chroma / LanceDB（可切换）</span></td>
+          </tr>
+          <tr class="border-b border-slate-100">
+            <td class="px-6 py-3 font-medium bg-slate-50/50">爬虫 / 调度</td>
+            <td class="px-6 py-3"><span class="chip bg-indigo-100 text-indigo-700 border border-indigo-200">APScheduler</span> <span class="chip bg-slate-100 text-slate-700 border border-slate-200">BeautifulSoup / Jina Reader</span></td>
+          </tr>
+          <tr>
+            <td class="px-6 py-3 font-medium bg-slate-50/50">开发模式零依赖</td>
+            <td class="px-6 py-3 text-[12px] text-slate-600">SimpleVectorStore + SimpleDocumentStore + 文件存储 → 笔记本开箱即用，无需安装任何数据库</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= WHY & ROADMAP ================= -->
+<section id="why" class="py-24 gradient-hero text-white relative overflow-hidden">
+  <div class="blob bg-sky-400 w-96 h-96 -top-20 right-20"></div>
+  <div class="absolute inset-0 grid-pattern opacity-30"></div>
+  <div class="max-w-7xl mx-auto px-6 relative">
+    <div class="grid lg:grid-cols-2 gap-12">
+      <!-- Why now -->
+      <div>
+        <div class="chip bg-yellow-400/20 text-yellow-200 border border-yellow-300/40 mb-4"><i class="fa-solid fa-lightbulb"></i> WHY NOW</div>
+        <h2 class="text-3xl font-bold mb-6">为什么这个产品值得做</h2>
+        <div class="space-y-4 text-slate-200 text-sm leading-relaxed">
+          <div class="flex gap-3">
+            <i class="fa-solid fa-chart-line text-emerald-400 mt-1"></i>
+            <div><b class="text-white">政策服务市场巨大。</b>全国中小企业 5,200 万+，每年各级政府发布政策文件 60 万+，招投标公告更是日均数千条。企业获取政策信息的效率严重滞后。</div>
+          </div>
+          <div class="flex gap-3">
+            <i class="fa-solid fa-unlock text-sky-300 mt-1"></i>
+            <div><b class="text-white">RAG 技术已达可用拐点。</b>BGE 系列中文嵌入模型的检索质量、DeepSeek-R1 等推理模型的理解深度，使"中文政策问答"这类过去很难做好的场景，现在可以做出真正有价值的产品。</div>
+          </div>
+          <div class="flex gap-3">
+            <i class="fa-solid fa-shield-halved text-yellow-300 mt-1"></i>
+            <div><b class="text-white">政企场景对"可追溯"要求极高。</b>所有回答必须附原文引用、标注来源文件——这正是 RAG 相较纯 LLM 的核心优势，也是我们的产品差异化壁垒。</div>
+          </div>
+          <div class="flex gap-3">
+            <i class="fa-solid fa-laptop text-violet-300 mt-1"></i>
+            <div><b class="text-white">本地化部署解决数据安全顾虑。</b>政府和国企对数据外泄高度敏感，支持 Ollama 本地模型 + 本地向量库的方案，是 SaaS 竞品很难提供的。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roadmap -->
+      <div id="roadmap">
+        <div class="chip bg-sky-400/20 text-sky-200 border border-sky-300/40 mb-4"><i class="fa-solid fa-map"></i> PRODUCT ROADMAP</div>
+        <h2 class="text-3xl font-bold mb-6">从 v0.1 到 v1.0 的演进路径</h2>
+        <div class="space-y-4">
+          <div class="glass rounded-xl p-4 border-l-4 border-emerald-400">
+            <div class="flex items-center justify-between mb-1">
+              <div class="font-semibold text-white">v0.1 MVP · 当前阶段</div>
+              <span class="chip bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">已完成</span>
+            </div>
+            <ul class="text-xs text-slate-300 space-y-0.5 list-disc pl-4">
+              <li>RAG 问答 + 引用溯源</li>
+              <li>多源知识库入库（PDF/网页/企业 JSON）</li>
+              <li>多模型可切换（Ollama + 主流 API）</li>
+              <li>企业查询 + 爬虫定时监控</li>
+            </ul>
+          </div>
+          <div class="glass rounded-xl p-4 border-l-4 border-sky-400">
+            <div class="flex items-center justify-between mb-1">
+              <div class="font-semibold text-white">v0.5 增强 · 2025 Q2</div>
+              <span class="chip bg-sky-500/20 text-sky-300 border border-sky-400/40">进行中</span>
+            </div>
+            <ul class="text-xs text-slate-300 space-y-0.5 list-disc pl-4">
+              <li>申报书 AI 辅助生成（当前原型已做初版）</li>
+              <li>补贴测算计算器 + 企业画像匹配</li>
+              <li>知识库分角色权限（企业版 / 咨询师版 / 政府版）</li>
+              <li>主动推送引擎：新政策 × 企业画像匹配</li>
+            </ul>
+          </div>
+          <div class="glass rounded-xl p-4 border-l-4 border-violet-400">
+            <div class="flex items-center justify-between mb-1">
+              <div class="font-semibold text-white">v1.0 正式版 · 2025 Q3</div>
+              <span class="chip bg-violet-500/20 text-violet-300 border border-violet-400/40">规划中</span>
+            </div>
+            <ul class="text-xs text-slate-300 space-y-0.5 list-disc pl-4">
+              <li>Electron 桌面客户端 + 一键安装体验</li>
+              <li>知识库图谱化：政策关系、申报依赖可视化</li>
+              <li>多智能体协作：爬虫 Agent + 匹配 Agent + 写作 Agent</li>
+              <li>SaaS 化部署 + 私有化部署双轨</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING / COMPETITION ================= -->
+<section class="py-24 bg-slate-50">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="text-center mb-12">
+      <div class="chip bg-amber-100 text-amber-700 border border-amber-200 mb-4"><i class="fa-solid fa-balance-scale"></i> POSITIONING</div>
+      <h2 class="text-4xl font-bold text-slate-900 mb-3">竞品对比 · 懂秘的差异化</h2>
+      <p class="text-slate-500">市场上有通用 RAG、通用 AI 助手、垂直政务平台——懂秘夹在中间的机会在哪里？</p>
+    </div>
+
+    <div class="rounded-2xl bg-white shadow-sm border border-slate-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-slate-100 text-[11px] uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="text-left px-6 py-4 font-medium">维度</th>
+            <th class="text-left px-6 py-4 font-medium">懂秘 DongMi</th>
+            <th class="text-left px-6 py-4 font-medium">通用 RAG（Dify/RAGFlow）</th>
+            <th class="text-left px-6 py-4 font-medium">通用 AI（Kimi/GPT）</th>
+            <th class="text-left px-6 py-4 font-medium">传统政务平台</th>
+          </tr>
+        </thead>
+        <tbody class="text-slate-700">
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">定位</td><td class="px-6 py-4"><b class="text-slate-900">政企政策垂直助手</b></td><td class="px-6 py-4 text-slate-500">通用 RAG 构建平台</td><td class="px-6 py-4 text-slate-500">通用对话 AI</td><td class="px-6 py-4 text-slate-500">政务办事系统</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">政策领域 Prompt</td><td class="px-6 py-4">✅ 预设好 + 可自定义</td><td class="px-6 py-4 text-slate-500">❌ 需自行配置</td><td class="px-6 py-4 text-slate-500">❌ 无领域优化</td><td class="px-6 py-4 text-slate-500">❌ 无 AI</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">回答引用溯源</td><td class="px-6 py-4">✅ 精确到分块</td><td class="px-6 py-4">⚠️ 基础能力</td><td class="px-6 py-4">❌ 常编造</td><td class="px-6 py-4 text-slate-500">❌ N/A</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">本地化部署</td><td class="px-6 py-4">✅ Ollama 零成本离线</td><td class="px-6 py-4">⚠️ 自部署较重</td><td class="px-6 py-4">❌ 纯云端</td><td class="px-6 py-4">✅ 私有化</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">中文分块优化</td><td class="px-6 py-4">✅ Spacy + 标题增强</td><td class="px-6 py-4">⚠️ 通用方案</td><td class="px-6 py-4">❌ N/A</td><td class="px-6 py-4 text-slate-500">❌ N/A</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">申报书生成</td><td class="px-6 py-4">✅ 内置场景化模板</td><td class="px-6 py-4 text-slate-500">❌ 需自建</td><td class="px-6 py-4 text-slate-500">⚠️ 通用写作</td><td class="px-6 py-4 text-slate-500">⚠️ 填表系统</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">爬虫 & 主动提醒</td><td class="px-6 py-4">✅ 内置 APScheduler</td><td class="px-6 py-4 text-slate-500">❌ 无</td><td class="px-6 py-4 text-slate-500">❌ 无</td><td class="px-6 py-4 text-slate-500">⚠️ 公告发布</td></tr>
+          <tr class="border-t border-slate-100"><td class="px-6 py-4 font-medium bg-slate-50/50">上手成本</td><td class="px-6 py-4">⚡ 开箱即用</td><td class="px-6 py-4 text-slate-500">🔧 需技术背景</td><td class="px-6 py-4 text-slate-500">⚡ 即开即用</td><td class="px-6 py-4 text-slate-500">📋 需注册</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="bg-slate-900 text-slate-400 py-12">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid md:grid-cols-3 gap-8">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm">懂</div>
+          <div class="text-white font-semibold">懂秘 DongMi</div>
+        </div>
+        <p class="text-xs leading-relaxed">基于 RAG 技术的政企政策智能助手，让政策文件像私人员工一样随问随答。</p>
+      </div>
+      <div>
+        <div class="text-white font-semibold text-sm mb-3">产品亮点</div>
+        <ul class="text-xs space-y-1.5">
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>中文政策问答 + 引用溯源</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>本地可部署，数据不出域</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>申报书 AI 辅助生成</li>
+          <li><i class="fa-solid fa-check text-emerald-400 mr-2"></i>爬虫定时监控 + 主动提醒</li>
+        </ul>
+      </div>
+      <div>
+        <div class="text-white font-semibold text-sm mb-3">技术栈</div>
+        <ul class="text-xs space-y-1.5">
+          <li>LlamaIndex · FastAPI · Streamlit</li>
+          <li>BGE 嵌入 + Reranker 重排序</li>
+          <li>Elasticsearch · Ollama · 多 API 兼容</li>
+          <li>（规划）Electron + React + Vite 桌面端</li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-slate-800 mt-8 pt-6 text-[11px] flex flex-wrap items-center justify-between gap-2">
+      <div>© 2025 懂秘 DongMi · 基于 ThinkRAG 开源框架二次开发</div>
+      <div class="flex items-center gap-3">
+        <span class="chip bg-slate-800 text-slate-300 border border-slate-700">MIT License</span>
+        <span class="chip bg-slate-800 text-slate-300 border border-slate-700">v0.1.0 Prototype</span>
+        <span class="chip bg-slate-800 text-slate-300 border border-slate-700">AI PM Interview Portfolio</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      b.classList.remove('tab-active');
+      b.classList.add('text-slate-600');
+    });
+    btn.classList.add('tab-active');
+    btn.classList.remove('text-slate-600');
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+    document.getElementById('tab-' + btn.dataset.tab).classList.remove('hidden');
+  });
+});
+
+// ===== Toast =====
+const toastWrap = document.createElement('div');
+toastWrap.id = 'toast-wrap';
+document.body.appendChild(toastWrap);
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  toastWrap.appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; }, 2200);
+  setTimeout(() => el.remove(), 2600);
+}
+
+// ===== QA: 快捷提问 / 发送 =====
+const qaChat = document.getElementById('qa-chat');
+const qaInput = document.getElementById('qa-input');
+
+const answers = {
+  '高企认定': '高企认定需满足成立满 1 年、拥有核心知识产权、研发费用占比达标（收入 5000 万以下为 4%）、高新技术产品收入占比 ≥ 60%。2025 年山东省申报截止 6 月 30 日。',
+  '小微企业': '小型微利企业年应纳税所得额不超过 300 万元的部分，减按 25% 计入应纳税所得额，按 20% 税率缴纳企业所得税，政策延续至 2027 年 12 月 31 日。',
+  '招标要求': '工程总承包招标需具备相应施工资质，近 3 年同类项目业绩，项目经理须持有一级建造师证书，且投标保证金不低于估算价的 2%。',
+  '绿色低碳': '绿色低碳专项补贴按项目实际投入的 15% 给予补助，单个项目最高 500 万元，需提供第三方节能量核定报告与项目验收材料。',
+  '专精特新': '专精特新认定需同时满足专、精、特、新四项标准：主营收入占比 ≥ 70%、研发投入占比 ≥ 3%、拥有核心技术、发明专利 ≥ 2 项或软著 ≥ 5 项。'
+};
+
+function appendUserMsg(text) {
+  const wrap = document.createElement('div');
+  wrap.className = 'flex gap-3 mb-5 justify-end fade-in';
+  wrap.innerHTML = '<div class="max-w-[75%] bg-sky-600 text-white text-sm rounded-2xl rounded-tr-sm px-4 py-2.5"></div>' +
+    '<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs font-semibold shrink-0">我</div>';
+  wrap.firstElementChild.textContent = text;
+  qaChat.appendChild(wrap);
+}
+
+function appendBotMsg(question) {
+  const key = Object.keys(answers).find(k => question.includes(k));
+  const text = key ? answers[key] : '已在本地知识库中检索相关条款，建议结合具体企业情况进一步确认。所有回答均可追溯到原文出处。';
+  const wrap = document.createElement('div');
+  wrap.className = 'flex gap-3 mb-5';
+  wrap.innerHTML = '<div class="w-8 h-8 rounded-full bg-gradient-to-br from-sky-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold shrink-0">懂</div>' +
+    '<div class="max-w-[85%]"><div class="bg-white border border-slate-200 rounded-2xl rounded-tl-sm px-4 py-3 shadow-sm">' +
+    '<div class="flex items-center gap-1.5 text-slate-400 text-sm"><span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce"></span><span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay:150ms"></span><span class="w-2 h-2 rounded-full bg-slate-400 animate-bounce" style="animation-delay:300ms"></span><span class="ml-1">正在检索知识库...</span></div>' +
+    '</div></div>';
+  qaChat.appendChild(wrap);
+  qaChat.scrollTop = qaChat.scrollHeight;
+  setTimeout(() => {
+    const bubble = wrap.querySelector('.bg-white');
+    bubble.innerHTML = '<p class="text-sm text-slate-700 leading-relaxed"></p>' +
+      '<div class="mt-3 pt-3 border-t border-slate-100 flex items-center gap-2">' +
+      '<span class="chip bg-sky-50 text-sky-700 border border-sky-200 text-[10px]">✅ 已引用 3 份政策</span>' +
+      '<span class="text-[10px] text-slate-400">耗时 1.8s · 可追溯原文</span></div>';
+    bubble.querySelector('p').textContent = text;
+    qaChat.scrollTop = qaChat.scrollHeight;
+  }, 900);
+}
+
+function sendQuestion(text) {
+  const q = (text || '').trim();
+  if (!q) { toast('请输入问题内容', 'warn'); return; }
+  appendUserMsg(q);
+  qaInput.value = '';
+  appendBotMsg(q);
+  qaChat.scrollTop = qaChat.scrollHeight;
+}
+
+document.querySelectorAll('.quick-q').forEach(btn => {
+  btn.addEventListener('click', () => sendQuestion(btn.dataset.question));
+});
+document.getElementById('qa-send').addEventListener('click', () => sendQuestion(qaInput.value));
+qaInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendQuestion(qaInput.value); });
+document.getElementById('qa-new').addEventListener('click', () => {
+  qaChat.innerHTML = '<div class="h-full flex flex-col items-center justify-center text-center py-16 text-slate-400">' +
+    '<i class="fa-regular fa-comments text-3xl mb-3"></i>' +
+    '<div class="text-sm">新对话已开始，向我提问任何政策问题吧</div></div>';
+  toast('已开始新对话', 'ok');
+});
+
+// ===== KB 操作 =====
+const kbMessages = {
+  upload: '已打开文件选择器（演示模式：实际将调用后端 /knowledge_base/upload）',
+  crawl: '已提交网页抓取任务，爬虫将在后台解析并入库',
+  enterprise: '已触发企业 JSON 批量导入，正在校验字段结构'
+};
+document.querySelectorAll('.kb-action').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const el = btn;
+    el.classList.add('btn-busy');
+    toast(kbMessages[btn.dataset.action] || '操作已提交');
+    setTimeout(() => el.classList.remove('btn-busy'), 1200);
+  });
+});
+
+// ===== 申报书生成 / 复制 / 导出 =====
+const appDoc = document.getElementById('app-doc');
+document.getElementById('app-generate').addEventListener('click', function () {
+  const btn = this;
+  if (btn.classList.contains('btn-busy')) return;
+  btn.classList.add('btn-busy');
+  const original = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>正在匹配政策并生成...';
+  setTimeout(() => {
+    btn.classList.remove('btn-busy');
+    btn.innerHTML = original;
+    toast('申报书已根据企业信息重新生成（模拟）', 'ok');
+    appDoc.style.transition = 'opacity .3s';
+    appDoc.style.opacity = '0.35';
+    setTimeout(() => { appDoc.style.opacity = '1'; }, 350);
+  }, 1400);
+});
+
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  }
+  return new Promise((resolve, reject) => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy') ? resolve() : reject(); } catch (e) { reject(e); }
+    ta.remove();
+  });
+}
+
+document.getElementById('app-copy').addEventListener('click', () => {
+  copyText(appDoc.innerText).then(() => toast('申报书内容已复制到剪贴板', 'ok'))
+    .catch(() => toast('复制失败，请手动选中复制', 'warn'));
+});
+
+document.getElementById('app-export').addEventListener('click', () => {
+  const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>专精特新申报书</title></head><body>' + appDoc.innerHTML + '</body></html>';
+  const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = '专精特新申报书_山东蓝海新能源.doc';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  toast('已导出 Word 文档', 'ok');
+});
+
+// ===== 模型卡片切换 =====
+document.querySelectorAll('.model-card').forEach(card => {
+  card.addEventListener('click', () => {
+    if (card.classList.contains('is-active')) return;
+    document.querySelectorAll('.model-card').forEach(c => {
+      c.classList.remove('is-active');
+      c.querySelector('.model-badge').classList.add('hidden');
+    });
+    card.classList.add('is-active');
+    card.querySelector('.model-badge').classList.remove('hidden');
+    toast('已切换模型：' + card.dataset.name, 'ok');
+  });
+});
+
+// ===== 参数滑块联动 =====
+document.querySelectorAll('.param-range').forEach(range => {
+  const out = document.getElementById(range.dataset.out);
+  if (!out) return;
+  range.addEventListener('input', () => {
+    const decimals = parseInt(range.dataset.decimals || '0', 10);
+    out.textContent = decimals ? parseFloat(range.value).toFixed(decimals) : range.value;
+  });
+});
+
+// Smooth scroll for anchor nav links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+});
+
+// ===== Mermaid 多源加载：优先国内可达源，全部失败则保留静态架构图 =====
+(function () {
+  const sources = [
+    'https://registry.npmmirror.com/mermaid/10.9.1/files/dist/mermaid.min.js',
+    'https://lib.baomitu.com/mermaid/10.9.1/mermaid.min.js',
+    'https://fastly.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js',
+    'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js',
+    'https://unpkg.com/mermaid@10.9.1/dist/mermaid.min.js'
+  ];
+
+  let done = false;
+  function fail() {
+    if (done) return;
+    done = true;
+    document.documentElement.classList.add('mermaid-failed');
+  }
+
+  function render() {
+    if (!window.mermaid) return;
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e0f2fe', primaryTextColor: '#0c2340', primaryBorderColor: '#0c4a6e',
+        lineColor: '#0ea5e9', secondaryColor: '#f0f9ff', tertiaryColor: '#fef3c7'
+      }
+    });
+    const nodes = document.querySelectorAll('.mermaid');
+    if (!nodes.length) { fail(); return; }
+    Promise.resolve(mermaid.run({ nodes: nodes }))
+      .then(() => {
+        // 必须确认 SVG 真正有尺寸，否则视为渲染失败
+        const svg = document.querySelector('.mermaid svg');
+        const w = svg ? svg.getBoundingClientRect().width : 0;
+        if (w > 120) {
+          done = true;
+          document.documentElement.classList.add('mermaid-ok');
+        } else {
+          fail();
+        }
+      })
+      .catch(fail);
+  }
+
+  function load(index) {
+    if (index >= sources.length) { fail(); return; }
+    const script = document.createElement('script');
+    script.src = sources[index];
+    script.async = true;
+    script.onload = render;
+    script.onerror = () => load(index + 1);
+    document.head.appendChild(script);
+  }
+
+  // 超时兜底：4.5 秒内未渲染成功则降级为静态架构图
+  setTimeout(fail, 4500);
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => load(0));
+  } else {
+    load(0);
+  }
+})();
+</script>
+</body>
+</html>
